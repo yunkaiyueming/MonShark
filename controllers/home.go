@@ -1,8 +1,6 @@
 package controllers
 
-import (
-	_ "fmt"
-)
+import _ "fmt"
 
 type HomeController struct {
 	BaseController
@@ -16,6 +14,11 @@ type MachineConfig struct {
 	Dbinfo string
 }
 
+type Users struct {
+	Email    string
+	Password string
+}
+
 //重写Prepare，会在每个method方法前调用
 // func (this *HomeController) Prepare() {
 // 	this.headerFile = "include/header.html"
@@ -25,8 +28,35 @@ type MachineConfig struct {
 // }
 
 func (this *HomeController) Index() {
-	this.getMachineConfig()
-	this.MyRender("home/view_machine.html")
+	//this.Ctx.WriteString("aaa")
+	flag := this.CheckLogin()
+	if flag {
+		this.getMachineConfig()
+		this.MyRender("home/view_machine.html")
+	} else {
+		this.LoginRender("home/view_register.html")
+	}
+
+}
+
+func (this *HomeController) Register() {
+	// this.Ctx.WriteString("aaa")
+	email := this.GetString("email")
+	// this.Ctx.WriteString(email)
+	password := this.GetString("password")
+	defer this.session.Close()
+	db := this.session.DB("monshark") //数据库名称
+	collection := db.C("users")       //如果该集合已经存在的话，直接返回
+
+	//插入数据
+	err := collection.Insert(&Users{email, password})
+
+	if err != nil {
+		panic(err)
+	} else {
+		this.Ctx.WriteString("注册成功！")
+	}
+
 }
 
 func (this *HomeController) getMachineConfig() {
