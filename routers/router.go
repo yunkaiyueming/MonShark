@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"MonShark/controllers"
+	"github.com/yunkaiyueming/MonShark/controllers"
 
 	"github.com/astaxie/beego"
 )
