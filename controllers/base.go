@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
+	"github.com/yunkaiyueming/MonShark/models"
 	"gopkg.in/mgo.v2"
 )
 
@@ -14,7 +15,8 @@ type BaseController struct {
 	headerFile  string
 	sidebarFile string
 	footerFile  string
-	session     *mgo.Session
+
+	mgoSession *mgo.Session
 }
 
 func (this *BaseController) Prepare() {
@@ -24,6 +26,7 @@ func (this *BaseController) Prepare() {
 	this.footerFile = "include/footer.html"
 	this.layoutFile = "include/layout/classic.html"
 	this.sidebarFile = "include/sidebar/classic_sidebar.html"
+
 	this.ConnMongoDB()
 }
 
@@ -40,12 +43,6 @@ func (this *BaseController) MyRender(viewFile string) {
 	this.Render()
 }
 
-func (this *BaseController) LoginRender(viewFile string) {
-	this.TplName = viewFile
-	this.PrepareViewData()
-	this.Render()
-}
-
 func (this *BaseController) PrepareViewData() {
 	staticUrl := beego.AppConfig.String("static_url")
 	siteUrl := beego.AppConfig.String("siteUrl")
@@ -55,25 +52,27 @@ func (this *BaseController) PrepareViewData() {
 }
 
 func (this *BaseController) CheckLogin() bool {
-	// id := this.GetSession("id")
-	// name := this.GetSession("name")
-
-	// if id != nil && name != nil {
-	// 	return true
-	// } else {
-	// 	//this.Redirect("home/index", 302)
-	// 	return false
-	// }
-	return false
-
+	id := this.GetSession("id")
+	name := this.GetSession("name")
+	if id != nil && name != nil {
+		return true
+	} else {
+		this.Redirect("home/index", 302)
+		return false
+	}
 }
 
 func (this *BaseController) ConnMongoDB() {
 	url := beego.AppConfig.String("mongoUrl")
-	session, err := mgo.Dial(url) //连接数据库
-	if err != nil {
-		panic(err)
-	}
-	session.SetMode(mgo.Monotonic, true)
-	this.session = session
+	this.mgoSession = models.GetDbConn(url)
+}
+
+func (this *BaseController) CloseMongoDB() {
+	this.mgoSession.Close()
+}
+
+func (this *BaseController) LoginRender(viewFile string) {
+	this.TplName = viewFile
+	this.PrepareViewData()
+	this.Render()
 }
