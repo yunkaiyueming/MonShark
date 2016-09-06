@@ -40,6 +40,12 @@ func (this *BaseController) MyRender(viewFile string) {
 	this.Render()
 }
 
+func (this *BaseController) LoginRender(viewFile string) {
+	this.TplName = viewFile
+	this.PrepareViewData()
+	this.Render()
+}
+
 func (this *BaseController) PrepareViewData() {
 	staticUrl := beego.AppConfig.String("static_url")
 	siteUrl := beego.AppConfig.String("siteUrl")
@@ -49,14 +55,17 @@ func (this *BaseController) PrepareViewData() {
 }
 
 func (this *BaseController) CheckLogin() bool {
-	id := this.GetSession("id")
-	name := this.GetSession("name")
-	if id != nil && name != nil {
-		return true
-	} else {
-		this.Redirect("home/index", 302)
-		return false
-	}
+	// id := this.GetSession("id")
+	// name := this.GetSession("name")
+
+	// if id != nil && name != nil {
+	// 	return true
+	// } else {
+	// 	//this.Redirect("home/index", 302)
+	// 	return false
+	// }
+	return false
+
 }
 
 func (this *BaseController) ConnMongoDB() {
@@ -65,7 +74,6 @@ func (this *BaseController) ConnMongoDB() {
 	if err != nil {
 		panic(err)
 	}
-	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
 	this.session = session
 }
