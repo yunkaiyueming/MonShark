@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"fmt"
+
 	"github.com/astaxie/beego"
+	"gopkg.in/mgo.v2"
 )
 
 type BaseController struct {
@@ -12,6 +14,7 @@ type BaseController struct {
 	headerFile  string
 	sidebarFile string
 	footerFile  string
+	session     *mgo.Session
 }
 
 func (this *BaseController) Prepare() {
@@ -21,6 +24,7 @@ func (this *BaseController) Prepare() {
 	this.footerFile = "include/footer.html"
 	this.layoutFile = "include/layout/classic.html"
 	this.sidebarFile = "include/sidebar/classic_sidebar.html"
+	this.ConnMongoDB()
 }
 
 func (this *BaseController) MyRender(viewFile string) {
@@ -53,4 +57,15 @@ func (this *BaseController) CheckLogin() bool {
 		this.Redirect("home/index", 302)
 		return false
 	}
+}
+
+func (this *BaseController) ConnMongoDB() {
+	url := beego.AppConfig.String("mongoUrl")
+	session, err := mgo.Dial(url) //连接数据库
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+	session.SetMode(mgo.Monotonic, true)
+	this.session = session
 }
