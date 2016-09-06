@@ -1,9 +1,8 @@
 package routers
 
 import (
-	"github.com/yunkaiyueming/MonShark/controllers"
-
 	"github.com/astaxie/beego"
+	"github.com/yunkaiyueming/MonShark/controllers"
 )
 
 func init() {
@@ -11,4 +10,6 @@ func init() {
 
 	beego.Router("home/", &controllers.HomeController{}, "GET:Index")
 	beego.Router("home/index", &controllers.HomeController{}, "GET:Index")
+
+	beego.Router("user/", &controllers.UserController{}, "GET:InsertTest")
 }

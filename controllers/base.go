@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
+	"github.com/yunkaiyueming/MonShark/models"
 	"gopkg.in/mgo.v2"
 )
 
@@ -14,7 +15,8 @@ type BaseController struct {
 	headerFile  string
 	sidebarFile string
 	footerFile  string
-	session     *mgo.Session
+
+	mgoSession *mgo.Session
 }
 
 func (this *BaseController) Prepare() {
@@ -24,6 +26,7 @@ func (this *BaseController) Prepare() {
 	this.footerFile = "include/footer.html"
 	this.layoutFile = "include/layout/classic.html"
 	this.sidebarFile = "include/sidebar/classic_sidebar.html"
+
 	this.ConnMongoDB()
 }
 
@@ -61,11 +64,9 @@ func (this *BaseController) CheckLogin() bool {
 
 func (this *BaseController) ConnMongoDB() {
 	url := beego.AppConfig.String("mongoUrl")
-	session, err := mgo.Dial(url) //连接数据库
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	session.SetMode(mgo.Monotonic, true)
-	this.session = session
+	this.mgoSession = models.GetDbConn(url)
+}
+
+func (this *BaseController) CloseMongoDB() {
+	this.mgoSession.Close()
 }
