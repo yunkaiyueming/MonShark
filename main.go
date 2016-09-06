@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "MonShark/routers"
+	_ "github.com/yunkaiyueming/MonShark/routers"
 
 	"github.com/astaxie/beego"
 )
