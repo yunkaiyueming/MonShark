@@ -2,53 +2,85 @@
     .floatThead-table {background-color: #FFFFFF;}
 </style>
 <div class="am-g">
-    <div class="am-u-sm-12 am-scrollable-horizontal">
+    <div id="conn" class="am-u-sm-6"></div>
+	<div id="network" class="am-u-sm-6"></div>
+
+	<div class="am-u-sm-6 am-scrollable-horizontal">
         <table class="am-table am-table-bordered am-table-radius am-table-striped am-table-compact am-table-hover am-text-nowrap tablesorter">
             <thead>
                 <tr>
-                    <th>机器名<i class="fa fa-sort"></i></th>								
-                    <th>IP<i class="fa fa-sort"></i></th>								
-                    <th>用户名<i class="fa fa-sort"></i></th>								
-                    <th>Port<i class="fa fa-sort"></i></th>								
-                   	<th>Db信息<i class="fa fa-sort"></i></th>			
-                    <th>操作</th>
+                    <th>Monodb版本<i class="fa fa-sort"></i></th>								
+                    <th>储存引擎<i class="fa fa-sort"></i></th>									
+                    <th>常驻内存</th>
+					<th>磁盘空间</th>
+					<th>已运行时间</th>
+                </tr>
+				<tr>
+                    <th>3.2</i></th>								
+                    <th>WridgTrier</th>									
+                    <th>1.2G</th>
+					<th>89G</th>
+					<th>24天:23小时:50分</th>
                 </tr>
             </thead>
-            <tbody>
-			{{range .machineConfigData}}
- 				<tr style='background:#d0d0d0 !important'>
-					<td>{{.Name}}</td>
-					<td>{{.Ip}}</td>
-					<td>{{.User}}</td>
-					<td>{{.Port}}</td>
-					<td>{{.Dbinfo}}</td>
-					<td>新增 编辑 删除</td>
-                </tr>
-			{{end}}
-            </tbody>
         </table>
-    </div>
+	</div>
 </div>
 
+<script src="{{.staticUrl}}/js/highcharts/highcharts.js"></script>
 <script type="text/javascript">
-    jQuery(function ($) {
-        var table = $('.tablesorter').dataTable({
-            "bPaginate": false, //翻页功能
-            "bLengthChange": false, //改变每页显示数据数量
-            "bFilter": false, //过滤功能
-            "bSort": true, //排序功能
-            "bInfo": false, //页脚信息
-            "bAutoWidth": false, //自动宽度
-            "bProcessing": false, //是否显示“正在处理”这个提示信息
-            "aaSorting": [0, "desc"], //默认排序列
-            "columnDefs": [
-                {type: 'formatted-num', targets: '_all'}
-            ]
-        });
-        var $floattable = $('.tablesorter');
-        $floattable.floatThead();
-        $('.am-scrollable-horizontal').on('scroll', function (e) {
-            $floattable.floatThead('reflow');
-        });
-    });
+   $(function () { 
+		$('#conn').highcharts({ 
+			chart: { type: 'line' }, 
+			title: { text: '连接数' }, 
+			subtitle: { text: '' }, 
+			xAxis: { 
+				categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] }, 
+			yAxis: { 
+				title: { text: 'Temperature (°C)' } }, 
+				tooltip: { 
+				enabled: false, 
+				formatter: function() { 
+					return '<b>'+ this.series.name +'</b><br/>'+this.x +': '+ this.y +'°C'; 
+				} 
+			}, 
+			plotOptions: { 
+				line: { 
+					dataLabels: { enabled: true }, 
+					enableMouseTracking: false 
+				} 
+			}, 
+			series: [
+				{name: 'Tokyo', data: [7.0, 6.9, 9.5, 14.5, 18.4, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6] }, 
+				{ name: 'London', data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8] }
+			] 
+		}); 
+
+		$('#network').highcharts({ 
+			chart: { type: 'line' }, 
+			title: { text: '网络流量' }, 
+			subtitle: { text: '' }, 
+			xAxis: { 
+				categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] }, 
+			yAxis: { 
+				title: { text: 'Temperature (°C)' } }, 
+				tooltip: { 
+				enabled: false, 
+				formatter: function() { 
+					return '<b>'+ this.series.name +'</b><br/>'+this.x +': '+ this.y +'°C'; 
+				} 
+			}, 
+			plotOptions: { 
+				line: { 
+					dataLabels: { enabled: true }, 
+					enableMouseTracking: false 
+				} 
+			}, 
+			series: [
+				{name: 'Tokyo', data: [7.0, 6.9, 9.5, 14.5, 18.4, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6] }, 
+				{ name: 'London', data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8] }
+			] 
+		}); 
+});
+
 </script>
