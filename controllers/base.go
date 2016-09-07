@@ -52,12 +52,10 @@ func (this *BaseController) PrepareViewData() {
 }
 
 func (this *BaseController) CheckLogin() bool {
-	id := this.GetSession("id")
-	name := this.GetSession("name")
-	if id != nil && name != nil {
+	email := this.GetSession("email")
+	if email != nil {
 		return true
 	} else {
-		this.Redirect("home/index", 302)
 		return false
 	}
 }
@@ -75,4 +73,15 @@ func (this *BaseController) LoginRender(viewFile string) {
 	this.TplName = viewFile
 	this.PrepareViewData()
 	this.Render()
+}
+
+func (this *BaseController) getMachineConfig() {
+	machineConfigData := map[string]MachineConfig{
+		"bi":        {Name: "bi", Ip: "s119.00.25.59", User: "00", Port: 10220},
+		"oa":        {Name: "oa", Ip: "s119.29.00.59", User: "00", Port: 10220},
+		"rsdk-set":  {Name: "rsdk-set", Ip: "s119.00.25.59", User: "00", Port: 10220},
+		"bi2-agent": {Name: "bi2-agent", Ip: "s119.00.25.59", User: "00", Port: 10220},
+	}
+
+	this.Data["machineConfigData"] = machineConfigData
 }
