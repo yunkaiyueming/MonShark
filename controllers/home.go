@@ -21,14 +21,10 @@ type MachineConfig struct {
 }
 
 func (this *HomeController) Index() {
-	//this.Ctx.WriteString("aaa")
-	flag := this.CheckLogin()
-	if flag {
-		this.getMachineConfig()
-		this.MyRender("home/view_machine.html")
-	} else {
-		this.LoginRender("home/view_welcome.html")
-	}
+	this.CheckLogin()
+
+	this.Data["userName"] = this.GetSessionUser()
+	this.MyRender("home/view_machine.html")
 }
 
 //数据管理
@@ -54,18 +50,6 @@ func (this *HomeController) ShowMgoData() {
 	this.Data["mgoDbs"] = mgoDbs
 	this.Data["mgoCols"] = mgoCols
 	this.MyRender("home/view_showMgoData.html")
-}
-
-func (this *HomeController) GetMgoDbs() []string {
-	dbs, err := this.mgoSession.DatabaseNames()
-	helpers.CheckError(err)
-	return dbs
-}
-
-func (this *HomeController) GetColsByDb(dbName string) []string {
-	cols, err := this.mgoSession.DB(dbName).CollectionNames()
-	helpers.CheckError(err)
-	return cols
 }
 
 func (this *HomeController) GetDocByCol(colName string) interface{} {

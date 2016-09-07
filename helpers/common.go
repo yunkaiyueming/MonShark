@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/astaxie/beego"
 )
 
 func CheckError(err error) {
@@ -72,4 +74,8 @@ func GetUrlQuery(params map[string]string) string {
 func Md5(str string) string {
 	data := []byte(str)
 	return fmt.Sprintf("%x", md5.Sum(data))
+}
+
+func SiteUrl(baseName string) string {
+	return beego.AppConfig.String("siteUrl") + "/" + baseName
 }
