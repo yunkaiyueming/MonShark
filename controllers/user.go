@@ -1,8 +1,12 @@
 package controllers
 
 import (
+	"fmt"
+
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
+	"github.com/yunkaiyueming/MonShark/helpers"
 )
 
 type UserController struct {
@@ -26,33 +30,49 @@ func (this *UserController) GetCol() *mgo.Collection {
 	return this.GetDb().C(CollectionName)
 }
 
-func (this *UserController) DoLogin() {
+//重写父类Prepare
+func (this *UserController) Prepare() {
+	fmt.Println("user controller prepare")
+
+	this.headerFile = "include/header.html"
+	this.footerFile = "include/footer.html"
+	this.layoutFile = "include/layout/main.html"
+	this.sidebarFile = ""
+
+	this.ConnMongoDB()
+}
+
+func (this *UserController) Login() {
 	email := this.GetString("email")
 	password := this.GetString("password")
+	action := this.GetString("action")
+	if action == "" {
+		this.MyRender("user/view_login.html")
+		return
+	}
 
 	defer this.CloseMongoDB()
-
 	collection := this.GetCol()
 
-	//****查询单条数据****
 	result := User{}
 	err := collection.Find(bson.M{"email": email}).One(&result)
+	helpers.CheckError(err)
 
-	if err != nil {
-		panic(err)
+	if result.Password == password {
+		this.SetSession("email", email)
+		this.MyRedirect("home/index", 302)
 	} else {
-		if result.Password == password {
-			this.SetSession("email", email)
-			//this.Ctx.WriteString("登录成功！")
-			this.getMachineConfig()
-			this.MyRender("home/view_machine.html")
-		}
+		this.MyRender("user/view_login.html")
 	}
 }
 
 func (this *UserController) LogOut() {
 	this.DelSession("email")
-	this.LoginRender("home/view_welcome.html")
+	this.MyRender("user/view_login.html")
+}
+
+func (this *UserController) Register() {
+	this.MyRender("user/view_register.html")
 }
 
 func (this *UserController) DoRegister() {
@@ -60,18 +80,10 @@ func (this *UserController) DoRegister() {
 	password := this.GetString("password")
 	collection := this.GetCol()
 	defer this.CloseMongoDB()
-	//插入数据
+
 	err := collection.Insert(&User{bson.NewObjectId(), email, password})
+	helpers.CheckError(err)
 
-	if err != nil {
-		panic(err)
-	} else {
-		this.SetSession("email", email)
-		this.getMachineConfig()
-		this.MyRender("home/view_machine.html")
-	}
-}
-
-func (this *UserController) Register() {
-	this.LoginRender("home/view_register.html")
+	this.SetSession("email", email)
+	this.MyRedirect("home/index", 302)
 }

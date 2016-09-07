@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/astaxie/beego"
+	"github.com/yunkaiyueming/MonShark/helpers"
 	"github.com/yunkaiyueming/MonShark/models"
 	"gopkg.in/mgo.v2"
 )
@@ -43,6 +44,11 @@ func (this *BaseController) MyRender(viewFile string) {
 	this.Render()
 }
 
+func (this *BaseController) MyRedirect(baseUrl string, code int) {
+	realUrl := helpers.SiteUrl(baseUrl)
+	this.Redirect(realUrl, code)
+}
+
 func (this *BaseController) PrepareViewData() {
 	staticUrl := beego.AppConfig.String("static_url")
 	siteUrl := beego.AppConfig.String("siteUrl")
@@ -56,8 +62,13 @@ func (this *BaseController) CheckLogin() bool {
 	if email != nil {
 		return true
 	} else {
+		this.Redirect("user/login", 302)
 		return false
 	}
+}
+
+func (this *BaseController) GetSessionUser() interface{} {
+	return this.GetSession("email")
 }
 
 func (this *BaseController) ConnMongoDB() {
@@ -69,19 +80,14 @@ func (this *BaseController) CloseMongoDB() {
 	this.mgoSession.Close()
 }
 
-func (this *BaseController) LoginRender(viewFile string) {
-	this.TplName = viewFile
-	this.PrepareViewData()
-	this.Render()
+func (this *BaseController) GetMgoDbs() []string {
+	dbs, err := this.mgoSession.DatabaseNames()
+	helpers.CheckError(err)
+	return dbs
 }
 
-func (this *BaseController) getMachineConfig() {
-	machineConfigData := map[string]MachineConfig{
-		"bi":        {Name: "bi", Ip: "s119.00.25.59", User: "00", Port: 10220},
-		"oa":        {Name: "oa", Ip: "s119.29.00.59", User: "00", Port: 10220},
-		"rsdk-set":  {Name: "rsdk-set", Ip: "s119.00.25.59", User: "00", Port: 10220},
-		"bi2-agent": {Name: "bi2-agent", Ip: "s119.00.25.59", User: "00", Port: 10220},
-	}
-
-	this.Data["machineConfigData"] = machineConfigData
+func (this *BaseController) GetColsByDb(dbName string) []string {
+	cols, err := this.mgoSession.DB(dbName).CollectionNames()
+	helpers.CheckError(err)
+	return cols
 }
