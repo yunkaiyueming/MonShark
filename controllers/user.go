@@ -1,9 +1,29 @@
 package controllers
 
-import "gopkg.in/mgo.v2/bson"
+import (
+	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+)
 
 type UserController struct {
 	BaseController
+}
+
+type User struct {
+	Id_      bson.ObjectId `bson:"_id"`
+	Email    string        `bson:"email"`
+	Password string        `bson:"password"`
+}
+
+const DBNAME = "MonShark"
+const CollectionName = "user"
+
+func (this *UserController) GetDb() *mgo.Database {
+	return this.mgoSession.DB(DBNAME)
+}
+
+func (this *UserController) GetCol() *mgo.Collection {
+	return this.GetDb().C(CollectionName)
 }
 
 func (this *UserController) DoLogin() {
@@ -12,11 +32,12 @@ func (this *UserController) DoLogin() {
 
 	defer this.CloseMongoDB()
 
-	db := this.mgoSession.DB("monshark") //数据库名称
-	collection := db.C("users")          //如果该集合已经存在的话，直接返回
+	// db := this.mgoSession.DB(DBNAME)   //数据库名称
+	// collection := db.C(CollectionName) //如果该集合已经存在的话，直接返回
+	collection := this.GetCol()
 
 	//****查询单条数据****
-	result := Users{}
+	result := User{}
 	err := collection.Find(bson.M{"email": email}).One(&result)
 
 	if err != nil {
@@ -40,11 +61,10 @@ func (this *UserController) LogOut() {
 func (this *UserController) DoRegister() {
 	email := this.GetString("email")
 	password := this.GetString("password")
-	db := this.mgoSession.DB("monshark") //数据库名称
-	collection := db.C("users")          //如果该集合已经存在的话，直接返回
+	collection := this.GetCol()
 	defer this.CloseMongoDB()
 	//插入数据
-	err := collection.Insert(&Users{email, password})
+	err := collection.Insert(&User{bson.NewObjectId(), email, password})
 
 	if err != nil {
 		panic(err)
