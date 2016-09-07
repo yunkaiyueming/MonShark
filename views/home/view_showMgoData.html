@@ -4,15 +4,19 @@
 
 <div class="am-cf am-padding">
 	<div class="am-fl am-cf">
+		<form action="" method="GET">
 		<span class="am-badge am-badge-danger">数据库:</span>
-		<select name='db'>
-			{{range .mgoDbs}} <option value="{{.}}">{{.}}</option>{{end}}
+		<select name='db' id="db">
+			{{range .mgoDbs}} <option value="{{.}}"  {{if eq . $.db}} selected="selected" {{end}} >{{.}}</option>{{end}}
  		</select>
 
 		<span class="am-badge am-badge-danger">数据表:</span>
-		<select name='db'>
+		<select name='col'>
 			{{range .mgoCols}} <option value="{{.}}">{{.}}</option>{{end}}
  		</select>
+
+		<button class="am-btn am-btn-sm am-btn-success" type="submit">查询</button>
+		</form>
 	</div>
 </div>
 
@@ -27,10 +31,10 @@
                 </tr>
             </thead>
             <tbody>
-			{{range .machineConfigData}}
+			{{range .docs}}
  				<tr style='background:#d0d0d0 !important'>
-					<td>{{.db}}</td>
-					<td>{{.data}}</td>
+					<td>{{$.col}}</td>
+					<td>{{.}}</td>
 					<td>新增 编辑 删除</td>
                 </tr>
 			{{end}}

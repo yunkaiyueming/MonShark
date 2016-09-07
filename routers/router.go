@@ -11,6 +11,7 @@ func init() {
 	beego.Router("home/", &controllers.HomeController{}, "GET:Index")
 	beego.Router("home/index", &controllers.HomeController{}, "GET:Index")
 	beego.Router("home/ShowMgoData", &controllers.HomeController{}, "GET:ShowMgoData")
+	beego.Router("home/AjaxGetColByDb", &controllers.HomeController{}, "GET:AjaxGetColByDb")
 
 	//用户模块
 	beego.Router("user/", &controllers.UserController{}, "GET:InsertTest")
