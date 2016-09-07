@@ -1,11 +1,7 @@
 package controllers
 
 import (
-	_ "fmt"
-
-	"time"
-
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -13,16 +9,14 @@ type UserController struct {
 	BaseController
 }
 
+type User struct {
+	Id_      bson.ObjectId `bson:"_id"`
+	Email    string        `bson:"email"`
+	Password string        `bson:"password"`
+}
+
 const DBNAME = "MonShark"
 const CollectionName = "user"
-
-type User struct {
-	Id_       bson.ObjectId `bson:"_id"`
-	Name      string        `bson:"name"`
-	Age       int           `bson:"age"`
-	JoinAt    time.Time     `bson:"joned_at"`
-	Interests []string      `bson:"interests"`
-}
 
 func (this *UserController) GetDb() *mgo.Database {
 	return this.mgoSession.DB(DBNAME)
@@ -32,17 +26,52 @@ func (this *UserController) GetCol() *mgo.Collection {
 	return this.GetDb().C(CollectionName)
 }
 
-func (this *UserController) InsertTest() {
-	data := &User{
-		Id_:       bson.NewObjectId(),
-		Name:      "Jimmy Kuu",
-		Age:       33,
-		JoinAt:    time.Now(),
-		Interests: []string{"Develop", "Movie"},
-	}
+func (this *UserController) DoLogin() {
+	email := this.GetString("email")
+	password := this.GetString("password")
 
-	err := this.GetCol().Insert(data)
+	defer this.CloseMongoDB()
+
+	collection := this.GetCol()
+
+	//****查询单条数据****
+	result := User{}
+	err := collection.Find(bson.M{"email": email}).One(&result)
+
 	if err != nil {
 		panic(err)
+	} else {
+		if result.Password == password {
+			this.SetSession("email", email)
+			//this.Ctx.WriteString("登录成功！")
+			this.getMachineConfig()
+			this.MyRender("home/view_machine.html")
+		}
 	}
+}
+
+func (this *UserController) LogOut() {
+	this.DelSession("email")
+	this.LoginRender("home/view_welcome.html")
+}
+
+func (this *UserController) DoRegister() {
+	email := this.GetString("email")
+	password := this.GetString("password")
+	collection := this.GetCol()
+	defer this.CloseMongoDB()
+	//插入数据
+	err := collection.Insert(&User{bson.NewObjectId(), email, password})
+
+	if err != nil {
+		panic(err)
+	} else {
+		this.SetSession("email", email)
+		this.getMachineConfig()
+		this.MyRender("home/view_machine.html")
+	}
+}
+
+func (this *UserController) Register() {
+	this.LoginRender("home/view_register.html")
 }
