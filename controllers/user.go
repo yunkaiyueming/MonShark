@@ -32,8 +32,6 @@ func (this *UserController) DoLogin() {
 
 	defer this.CloseMongoDB()
 
-	// db := this.mgoSession.DB(DBNAME)   //数据库名称
-	// collection := db.C(CollectionName) //如果该集合已经存在的话，直接返回
 	collection := this.GetCol()
 
 	//****查询单条数据****
@@ -50,7 +48,6 @@ func (this *UserController) DoLogin() {
 			this.MyRender("home/view_machine.html")
 		}
 	}
-
 }
 
 func (this *UserController) LogOut() {
@@ -73,7 +70,6 @@ func (this *UserController) DoRegister() {
 		this.getMachineConfig()
 		this.MyRender("home/view_machine.html")
 	}
-
 }
 
 func (this *UserController) Register() {
