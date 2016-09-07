@@ -65,6 +65,6 @@ func (this *HomeController) GetColsByDb(dbName string) []string {
 	return cols
 }
 
-func (this *HomeController) GetDocByCol(colName string) []interface{} {
+func (this *HomeController) GetDocByCol(colName string) {
 
 }
