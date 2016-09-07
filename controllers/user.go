@@ -1,48 +1,61 @@
 package controllers
 
-import (
-	_ "fmt"
-
-	"time"
-
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-)
+import "gopkg.in/mgo.v2/bson"
 
 type UserController struct {
 	BaseController
 }
 
-const DBNAME = "MonShark"
-const CollectionName = "user"
+func (this *UserController) DoLogin() {
+	email := this.GetString("email")
+	password := this.GetString("password")
 
-type User struct {
-	Id_       bson.ObjectId `bson:"_id"`
-	Name      string        `bson:"name"`
-	Age       int           `bson:"age"`
-	JoinAt    time.Time     `bson:"joned_at"`
-	Interests []string      `bson:"interests"`
-}
+	defer this.CloseMongoDB()
 
-func (this *UserController) GetDb() *mgo.Database {
-	return this.mgoSession.DB(DBNAME)
-}
+	db := this.mgoSession.DB("monshark") //数据库名称
+	collection := db.C("users")          //如果该集合已经存在的话，直接返回
 
-func (this *UserController) GetCol() *mgo.Collection {
-	return this.GetDb().C(CollectionName)
-}
+	//****查询单条数据****
+	result := Users{}
+	err := collection.Find(bson.M{"email": email}).One(&result)
 
-func (this *UserController) InsertTest() {
-	data := &User{
-		Id_:       bson.NewObjectId(),
-		Name:      "Jimmy Kuu",
-		Age:       33,
-		JoinAt:    time.Now(),
-		Interests: []string{"Develop", "Movie"},
-	}
-
-	err := this.GetCol().Insert(data)
 	if err != nil {
 		panic(err)
+	} else {
+		if result.Password == password {
+			this.SetSession("email", email)
+			//this.Ctx.WriteString("登录成功！")
+			this.getMachineConfig()
+			this.MyRender("home/view_machine.html")
+		}
 	}
+
+}
+
+func (this *UserController) LogOut() {
+	this.DelSession("email")
+	this.LoginRender("home/view_welcome.html")
+}
+
+func (this *UserController) DoRegister() {
+	email := this.GetString("email")
+	password := this.GetString("password")
+	db := this.mgoSession.DB("monshark") //数据库名称
+	collection := db.C("users")          //如果该集合已经存在的话，直接返回
+	defer this.CloseMongoDB()
+	//插入数据
+	err := collection.Insert(&Users{email, password})
+
+	if err != nil {
+		panic(err)
+	} else {
+		this.SetSession("email", email)
+		this.getMachineConfig()
+		this.MyRender("home/view_machine.html")
+	}
+
+}
+
+func (this *UserController) Register() {
+	this.LoginRender("home/view_register.html")
 }
