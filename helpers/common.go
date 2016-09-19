@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/astaxie/beego"
 )
@@ -15,7 +16,7 @@ import (
 func CheckError(err error) {
 	if err != nil {
 		fmt.Println(err)
-		panic(err)
+		//panic(err)
 	}
 }
 
@@ -78,4 +79,9 @@ func Md5(str string) string {
 
 func SiteUrl(baseName string) string {
 	return beego.AppConfig.String("siteUrl") + "/" + baseName
+}
+
+func Now() {
+	time.Now()
+
 }

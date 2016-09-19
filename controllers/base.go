@@ -7,6 +7,7 @@ import (
 	"github.com/yunkaiyueming/MonShark/helpers"
 	"github.com/yunkaiyueming/MonShark/models"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type BaseController struct {
@@ -20,6 +21,17 @@ type BaseController struct {
 	mgoSession *mgo.Session
 }
 
+type WebAna struct {
+	Id_        bson.ObjectId `bson:"_id"`
+	Url        string        `bson:"url"`
+	PageView   int           `bson:"page_view"`
+	Refer      string        `bson:"refer"`
+	CreateTime string        `bson:"create_time"`
+	LastTime   string        `bson:"last_time"`
+}
+
+const DefaultMgoDbName = "MonShark"
+
 func (this *BaseController) Prepare() {
 	fmt.Println("base controller prepare")
 
@@ -29,6 +41,7 @@ func (this *BaseController) Prepare() {
 	this.sidebarFile = "include/sidebar/classic_sidebar.html"
 
 	this.ConnMongoDB()
+	this.RecordPageView()
 }
 
 func (this *BaseController) MyRender(viewFile string) {
@@ -62,7 +75,7 @@ func (this *BaseController) CheckLogin() bool {
 	if email != nil {
 		return true
 	} else {
-		this.Redirect("user/login", 302)
+		this.MyRedirect("user/login", 302)
 		return false
 	}
 }
@@ -90,4 +103,28 @@ func (this *BaseController) GetColsByDb(dbName string) []string {
 	cols, err := this.mgoSession.DB(dbName).CollectionNames()
 	helpers.CheckError(err)
 	return cols
+}
+
+//web请求统计
+func (this *BaseController) RecordPageView() {
+	webCol := this.mgoSession.DB(DefaultMgoDbName).C("web_analystics")
+	controllerName, actionName := this.GetControllerAndAction()
+	url := controllerName + "/" + actionName
+	refer := this.Ctx.Request.Referer()
+
+	result := WebAna{}
+	err := webCol.Find(bson.M{"url": url}).One(&result)
+	helpers.CheckError(err)
+
+	//upsert
+	if result.Id_ != "" {
+		fmt.Println(result)
+		err := webCol.UpdateId(result.Id_, &bson.M{"$set": bson.M{"page_view": (result.PageView + 1), "last_time": helpers.MyNowDate()}})
+		helpers.CheckError(err)
+	} else {
+		data := &WebAna{bson.NewObjectId(), url, 1, refer, helpers.MyNowDate(), helpers.MyNowDate()}
+		err := webCol.Insert(data)
+		helpers.CheckError(err)
+	}
+
 }
