@@ -22,12 +22,12 @@ type BaseController struct {
 }
 
 type WebAna struct {
-	Id_      bson.ObjectId `bson:"_id"`
-	Url      string        `bson:"url"`
-	PageView int           `bson:"page_view"`
-	Refer    string        `bson:"refer"`
-	//CreateDateTime
-	//LastUpdateTime
+	Id_        bson.ObjectId `bson:"_id"`
+	Url        string        `bson:"url"`
+	PageView   int           `bson:"page_view"`
+	Refer      string        `bson:"refer"`
+	CreateTime string        `bson:"create_time"`
+	LastTime   string        `bson:"last_time"`
 }
 
 const DefaultMgoDbName = "MonShark"
@@ -119,10 +119,10 @@ func (this *BaseController) RecordPageView() {
 	//upsert
 	if result.Id_ != "" {
 		fmt.Println(result)
-		err := webCol.UpdateId(result.Id_, &bson.M{"$set": bson.M{"page_view": (result.PageView + 1)}})
+		err := webCol.UpdateId(result.Id_, &bson.M{"$set": bson.M{"page_view": (result.PageView + 1), "last_time": helpers.MyNowDate()}})
 		helpers.CheckError(err)
 	} else {
-		data := &WebAna{bson.NewObjectId(), url, 1, refer}
+		data := &WebAna{bson.NewObjectId(), url, 1, refer, helpers.MyNowDate(), helpers.MyNowDate()}
 		err := webCol.Insert(data)
 		helpers.CheckError(err)
 	}
