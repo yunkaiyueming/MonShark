@@ -40,6 +40,7 @@ func (this *UserController) Prepare() {
 	this.sidebarFile = ""
 
 	this.ConnMongoDB()
+	this.RecordPageView()
 }
 
 func (this *UserController) Login() {
