@@ -1,24 +1,12 @@
-//helpers包用来写一些通用辅助函数
 package helpers
 
 import (
-	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
-
-	"github.com/astaxie/beego"
 )
-
-func CheckError(err error) {
-	if err != nil {
-		fmt.Println(err)
-		//panic(err)
-	}
-}
 
 func MyHttpGet(url string) string {
 	resp, err := http.Get(url)
@@ -69,29 +57,4 @@ func GetUrlQuery(params map[string]string) string {
 	}
 
 	return query[0 : len(query)-1]
-
-}
-
-func Md5(str string) string {
-	data := []byte(str)
-	return fmt.Sprintf("%x", md5.Sum(data))
-}
-
-func SiteUrl(baseName string) string {
-	return beego.AppConfig.String("siteUrl") + "/" + baseName
-}
-
-func Now() {
-	time.Now()
-
-}
-
-func CheckError(err error) {
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-}
-
-func Log() {
-
 }

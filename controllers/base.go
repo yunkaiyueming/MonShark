@@ -105,6 +105,20 @@ func (this *BaseController) GetColsByDb(dbName string) []string {
 	return cols
 }
 
+func (this *BaseController) JsonResult(out interface{}) {
+	this.Data["json"] = out
+	this.ServeJSON()
+	this.StopRun()
+}
+
+func (this *BaseController) AjaxMsg(msg interface{}, msgno int) {
+	out := make(map[string]interface{})
+	out["status"] = msgno
+	out["msg"] = msg
+
+	this.JsonResult(out)
+}
+
 //web请求统计
 func (this *BaseController) RecordPageView() {
 	webCol := this.mgoSession.DB(DefaultMgoDbName).C("web_analystics")
