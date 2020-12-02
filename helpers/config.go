@@ -52,7 +52,7 @@ func isNeedDiffByMachine(file string) (bool, error) {
 func getMyMachineId() (string, error) {
 	cnf, err := config.NewConfig("ini", "E:/machine.conf")
 	if err != nil {
-		return "", ErrLog("parse /etc/rayjoy_plattech/machine.conf fail %s", err.Error())
+		return "", ErrLog("parse /etc/plattech/machine.conf fail %s", err.Error())
 	}
 
 	return cnf.String("machine_id"), nil
