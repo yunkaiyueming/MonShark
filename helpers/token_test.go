@@ -7,7 +7,7 @@ import (
 func TestGetSign(t *testing.T) {
 	params := map[string]string{
 		"app_key":   "XdfetWtesLs1",
-		"user_name": "zhangsan@rayjoy.com",
+		"user_name": "zhangsan@tt.com",
 		"url":       "http://www.google.com",
 		"time":      "2015-03-05",
 	}
@@ -22,7 +22,7 @@ func TestGetSign(t *testing.T) {
 func TestCheckSign(t *testing.T) {
 	params := map[string]string{
 		"app_key":   "XdfetWtesLs1",
-		"user_name": "zhangsan@rayjoy.com",
+		"user_name": "zhangsan@tt.com",
 		"url":       "http://www.google.com",
 		"time":      "2015-03-05",
 	}
